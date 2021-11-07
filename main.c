@@ -35,7 +35,7 @@ void PrintEmployees(Developer *employees[]);
 
 void InsertCandidate(Developer *candidates[], Developer *employees[]);
 
-void HireCandidate(Developer *employees[]);
+void HireCandidate(Developer *candidates[],Developer *employees[]);
 
 int main() {
 
@@ -62,7 +62,7 @@ int main() {
                 InsertCandidate(candidates, employees);
                 break;
             case 4:
-                HireCandidate(employees);
+                HireCandidate(candidates,employees);
                 break;
             case 5:
                 printf("You have exited the program.");
@@ -269,27 +269,36 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
             break;
     }
 
-
     numOfCans++;
 }
 
-void HireCandidate(Developer *employees[]) {
+void HireCandidate(Developer *candidates[],Developer *employees[]) {
 
     if (numOfDevs >= 20) {
-        printf("The employees team is full");
+        printf("The employees team is full, candidate cannot be hired!\n");
         return;
     }
 
     employees[numOfDevs] = (Developer *) calloc(1, sizeof(Developer));
     char details[2][20];
 
-    printf("Please enter a first name and a last name");
+    printf("Please enter the candidate's first and last name.\n");
 
     for (int i = 0; i < 2; i++)
         scanf("%s ", details[i]);
 
-    strcpy(employees[numOfDevs]->fname, details[0]);
-    strcpy(employees[numOfDevs]->lname, details[1]);
+    int i;
+
+    for(i=0;i<numOfCans;i++){
+        if(strcmp(candidates[i]->fname,details[0])==0 && strcmp(candidates[i]->lname,details[1])==0){
+            printf("Candidate %s %s has been hired as an employee!\n",details[0],details[1]);
+            for(;i<numOfCans-1;i++){
+                candidates[i]=candidates[i+1];
+            }
+            numOfCans--;
+            break;
+        }
+    }
 
     employees[numOfDevs]->d1 = NULL;
     employees[numOfDevs]->d2 = NULL;
