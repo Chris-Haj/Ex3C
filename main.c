@@ -4,6 +4,8 @@
 
 const int N = 20;
 
+//At the start of the program we have 0 candidates and 0 developers, each time a candidate is inserted, numOfCans increments by 1
+//and each time a developer is inserted, numOfDevs is incremented by 1.
 int numOfCans=0,numOfDevs=0;
 
 typedef struct recommender{
@@ -24,6 +26,8 @@ typedef struct developer{
 
 }Developer;
 
+
+
 int welcome();
 void PrintCandidates(Developer *candidates[]);
 void PrintEmployees(Developer *employees[]);
@@ -38,9 +42,9 @@ int main() {
 
 /*
  * A loop to keep listing the welcome options until the user chooses the exit option
- * and by using the switch ex
- *
- * */
+ * and by using the switch statement I can call the needed function according to what option (case) is entered.
+ * Once the exit option is chosen all allocated memory is freed.
+  */
     while(!exit) {
         int option = welcome();
 
@@ -81,6 +85,8 @@ int welcome(){
     printf("4. Hire candidate\n");
     printf("5. Exit\n");
 
+    //A while loop that keeps going until the user entered an option from the menu.
+
     while(1 > option || option > 5){
 
         scanf("%d",&option);
@@ -94,7 +100,7 @@ int welcome(){
 void PrintCandidates(Developer *candidates[]){
 
     if(numOfCans==0){
-        printf("Candidates team is empty!\n");
+        printf("There are currently 0 candidates.\n");
         return;
     }
 
@@ -106,67 +112,74 @@ void PrintCandidates(Developer *candidates[]){
 }
 void PrintEmployees(Developer *employees[]){
 
+    if(numOfDevs==0){
+        printf("There are currently 0 employees.\n");
+        return;
+    }
+
     for(int i=0;i<numOfDevs;i++){
         printf("Employee %d: \n\tFirst name: %s \n\tLast name: %s \n\t",i+1,employees[i]->fname,employees[i]->lname);
     }
     printf("\n");
 }
-void InsertCandidate(Developer *candidates[]){
+void InsertCandidate(Developer *candidates[]) {
 
-    if(numOfCans>20){
+    if (numOfCans > 20) {
         printf("Candidates team is full!\n");
         return;
-    }
+        }
+/*
+ * The details array is used to store the full name of the new candidate and their degree.
+ * And we also allocate a new memory block for the new candidate.
+ * */
+        char details[3][20];
+        candidates[numOfCans] = (Developer *) calloc(1, sizeof(Developer));
 
-    char details[3][20];
-    candidates[numOfCans]= (Developer *) calloc(1,sizeof (Developer));
+        printf("Please enter a first name, last name, and a degree\n");
+        for (int i = 0; i < 3; i++) {
+            scanf("%s", details[i]);
+        }
 
-    printf("Please enter a first name, last name, and a degree\n");
-    for(int i=0;i<3;i++){
-        scanf("%s",details[i]);
-    }
+    //After we store the variables we need inside of the details array, we copy them to the new candidate fname, lname, and degree fields.
+        strcpy(candidates[numOfCans]->fname, details[0]);
+        strcpy(candidates[numOfCans]->lname, details[1]);
+        strcpy(candidates[numOfCans]->degree, details[2]);
 
-    strcpy(candidates[numOfCans]->fname,details[0]);
-    strcpy(candidates[numOfCans]->lname,details[1]);
-    strcpy(candidates[numOfCans]->degree,details[2]);
+        printf("Does this candidate have any recommenders from inside the company?\nAnswer with yes/no\n");
+        char answer[4] = "";
+        char recommender[2][20];
 
-    printf("Does this candidate have any recommenders from inside the company?\nAnswer with yes/no\n");
-    char answer[4]="";
-    char recommender[2][20];
+        while (1) {
 
-    while(1) {
+            scanf("%s ", answer);
 
-        scanf("%s ", answer);
+            if (strcmp(answer, "yes") == 0 || strcmp(answer, "Yes") == 0) {
+                printf("Please enter their recommenders first and last names: ");
 
-        if (strcmp(answer, "yes") == 0 || strcmp(answer, "Yes") == 0) {
-            printf("Please enter their recommenders first and last names: ");
+                for (int i = 0; i < 2; i++)
+                    scanf("%s ", recommender[i]);
 
-            for(int i=0;i<2;i++)
-                scanf("%s ",recommender[i]);
+                candidates[numOfDevs]->d1 = (Developer *) calloc(1, sizeof(Developer));
 
-            candidates[numOfDevs]->d1  = (Developer *) calloc(1, sizeof(Developer));
+                strcpy(candidates[numOfDevs]->d1->fname, details[0]);
+                strcpy(candidates[numOfDevs]->d1->lname, details[1]);
 
-            strcpy(candidates[numOfDevs]->d1->fname,details[0]);
-            strcpy(candidates[numOfDevs]->d1->lname,details[1]);
+                break;
+            } else if (strcmp(answer, "no") == 0 || strcmp(answer, "No") == 0) {
 
-            break;
-        } else if (strcmp(answer, "no") == 0 || strcmp(answer, "No") == 0) {
+                candidates[numOfCans]->d1 = NULL;
+                candidates[numOfCans]->d2 = NULL;
+                candidates[numOfCans]->r1 = NULL;
+                candidates[numOfCans]->r2 = NULL;
 
-            candidates[numOfCans]->d1=NULL;
-            candidates[numOfCans]->d2=NULL;
-            candidates[numOfCans]->r1=NULL;
-            candidates[numOfCans]->r2=NULL;
+                break;
 
-            break;
-
-        } else
-            printf("Please only answer with yes/no.\n");
-    }
+            } else
+                printf("Please only answer with yes/no.\n");
+        }
 
 
-
-
-    numOfCans++;
+        numOfCans++;
     }
 
 void HireCandidate(Developer *employees[]){
@@ -193,6 +206,5 @@ void HireCandidate(Developer *employees[]){
     employees[numOfDevs]->r2=NULL;
 
     numOfDevs++;
-
 
 }
