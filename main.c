@@ -35,7 +35,7 @@ void PrintEmployees(Developer *employees[]);
 
 void InsertCandidate(Developer *candidates[], Developer *employees[]);
 
-void HireCandidate(Developer *candidates[],Developer *employees[]);
+void HireCandidate(Developer *candidates[], Developer *employees[]);
 
 int main() {
 
@@ -62,7 +62,7 @@ int main() {
                 InsertCandidate(candidates, employees);
                 break;
             case 4:
-                HireCandidate(candidates,employees);
+                HireCandidate(candidates, employees);
                 break;
             case 5:
                 printf("You have exited the program.");
@@ -76,7 +76,7 @@ int main() {
     return 0;
 }
 
-// Function to print welcome message and options.
+// Function to print welcome message and option menu.
 int welcome() {
 
     int option = 0;
@@ -87,8 +87,6 @@ int welcome() {
     printf("3. Insert new candidate.\n");
     printf("4. Hire candidate\n");
     printf("5. Exit\n");
-
-    //A while loop that keeps going until the user entered an option from the menu.
 
     while (1 > option || option > 5) {
 
@@ -108,7 +106,19 @@ void PrintCandidates(Developer *candidates[]) {
     }
 
     for (int i = 0; i < numOfCans; i++) {
-        printf("Candidate %d:\n\tFirst name: %s \n\tLast name: %s \n\tDegree: %s\n\n", i + 1, candidates[i]->fname, candidates[i]->lname, candidates[i]->degree);
+        printf("Candidate %d details:\n\tFirst name: %s \n\tLast name: %s \n\tDegree: %s\n", i + 1, candidates[i]->fname, candidates[i]->lname, candidates[i]->degree);
+        if (candidates[i]->d1 != NULL) {
+            printf("\tRecommender 1 from company for %s %s is %s %s\n", candidates[i]->fname, candidates[i]->lname, candidates[i]->d1->fname, candidates[i]->d1->lname);
+            if (candidates[i]->d2 != NULL)
+                printf("\tRecommender 2 from company for %s %s is %s %s\n", candidates[i]->fname, candidates[i]->lname, candidates[i]->d2->fname, candidates[i]->d2->lname);
+        }
+        if (candidates[i]->r1 != NULL) {
+            printf("\tRecommender 1 from outside the company for %s %s is %s %s\n", candidates[i]->fname, candidates[i]->lname, candidates[i]->r1->fname, candidates[i]->r1->lname);
+            if (candidates[i]->r2 != NULL) {
+                printf("\tRecommender 2 from outside the company for %s %s is %s %s\n", candidates[i]->fname, candidates[i]->lname, candidates[i]->r2->fname, candidates[i]->r2->lname);
+            }
+        }
+
     }
 
     printf("\n");
@@ -122,7 +132,7 @@ void PrintEmployees(Developer *employees[]) {
     }
 
     for (int i = 0; i < numOfDevs; i++) {
-        printf("Employee %d: \n\tFirst name: %s \n\tLast name: %s \n\t", i + 1, employees[i]->fname, employees[i]->lname);
+        printf("Employee %d: \n\tFirst name: %s \n\tLast name: %s \n", i + 1, employees[i]->fname, employees[i]->lname);
     }
     printf("\n");
 }
@@ -149,6 +159,11 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
     strcpy(candidates[numOfCans]->lname, details[1]);
     strcpy(candidates[numOfCans]->degree, details[2]);
 
+    candidates[numOfCans]->d1 = NULL;
+    candidates[numOfCans]->d2 = NULL;
+    candidates[numOfCans]->r1 = NULL;
+    candidates[numOfCans]->r2 = NULL;
+
     printf("Does this candidate have any recommenders from inside the company?\nAnswer with yes/no\n");
     char answer[4] = "";
     char recommender[2][20];
@@ -166,14 +181,17 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
 
             for (int i = 0; i < numOfDevs; i++) {
                 if (strcmp(employees[i]->fname, recommender[0]) == 0 && strcmp(employees[i]->lname, recommender[1]) == 0) {
-                    candidates[numOfCans]->d2 = employees[i];
+                    candidates[numOfCans]->d1 = employees[i];
                     found = 1;
                     break;
                 }
-                if (i == numOfDevs - 1 && found == 0) {
-                    printf("The name you have entered \"%s %s\" does not work at our company!\n", recommender[0], recommender[1]);
-                }
             }
+
+            if(found==0){
+                printf("The name you have entered \"%s %s\" does not work at our company!\n", recommender[0], recommender[1]);
+                printf("It will be assumed that the candidate does not have any recommenders from inside the company!\n");
+            }
+
             break;
         } else if (strcmp(answer, "no") == 0 || strcmp(answer, "No") == 0)
             break;
@@ -182,7 +200,6 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
     }
 
     if (found == 1) {
-
         found = 0;
         printf("Does this candidate have another recommender from inside the company?\n");
         strcpy(answer, "");
@@ -202,9 +219,10 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
                         found = 1;
                         break;
                     }
-                    if (i == numOfDevs - 1 && found == 0) {
-                        printf("The name you have entered \"%s %s\" does not work at our company!\n", recommender[0], recommender[1]);
-                    }
+                }
+
+                if (found == 0) {
+                    printf("The name you have entered \"%s %s\" does not work at our company!\n", recommender[0], recommender[1]);
                 }
 
                 break;
@@ -215,6 +233,7 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
         }
     }
 
+    found = 0;
     printf("Does this candidate have any recommenders from outside the company?\n");
     strcpy(answer, "");
 
@@ -225,7 +244,7 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
         scanf("%s", answer);
 
         if (strcmp(answer, "yes") == 0 || strcmp(answer, "Yes") == 0) {
-
+            found = 1;
             printf("Please enter the recommender's first and last name, and their email as well.\n");
 
             for (int i = 0; i < 3; i++)
@@ -243,57 +262,72 @@ void InsertCandidate(Developer *candidates[], Developer *employees[]) {
         else
             break;
     }
-    strcpy(answer, "");
-    printf("Does this candidate have another recommender from outside the company?\n");
+    if (found == 1) {
+        strcpy(answer, "");
+        printf("Does this candidate have another recommender from outside the company?\n");
 
-    while (1) {
+        while (1) {
 
-        scanf("%s", answer);
+            scanf("%s", answer);
 
-        if (strcmp(answer, "yes") == 0 || strcmp(answer, "Yes") == 0) {
+            if (strcmp(answer, "yes") == 0 || strcmp(answer, "Yes") == 0) {
 
-            printf("Please enter the recommender's first and last name, and their email as well.\n");
-            for (int i = 0; i < 3; i++)
-                scanf("%s", OutRecommender[i]);
-            candidates[numOfDevs]->r2 = (Recommender *) calloc(1, sizeof(Recommender));
+                printf("Please enter the recommender's first and last name, and their email as well.\n");
+                for (int i = 0; i < 3; i++)
+                    scanf("%s", OutRecommender[i]);
+                candidates[numOfDevs]->r2 = (Recommender *) calloc(1, sizeof(Recommender));
 
-            strcpy(candidates[numOfDevs]->r2->fname, OutRecommender[0]);
-            strcpy(candidates[numOfDevs]->r2->lname, OutRecommender[1]);
-            strcpy(candidates[numOfDevs]->r2->email, OutRecommender[2]);
+                strcpy(candidates[numOfDevs]->r2->fname, OutRecommender[0]);
+                strcpy(candidates[numOfDevs]->r2->lname, OutRecommender[1]);
+                strcpy(candidates[numOfDevs]->r2->email, OutRecommender[2]);
 
-            break;
-        } else if (strcmp(answer, "no") == 0 || strcmp(answer, "No") == 0)
-            break;
+                break;
+            } else if (strcmp(answer, "no") == 0 || strcmp(answer, "No") == 0)
+                break;
 
-        else
-            break;
+            else
+                break;
+        }
     }
-
+    found=0;
     numOfCans++;
 }
 
-void HireCandidate(Developer *candidates[],Developer *employees[]) {
+void HireCandidate(Developer *candidates[], Developer *employees[]) {
 
     if (numOfDevs >= 20) {
         printf("The employees team is full, candidate cannot be hired!\n");
         return;
     }
 
-    employees[numOfDevs] = (Developer *) calloc(1, sizeof(Developer));
+    int found=0;
     char details[2][20];
 
     printf("Please enter the candidate's first and last name.\n");
 
     for (int i = 0; i < 2; i++)
-        scanf("%s ", details[i]);
+        scanf("%s", details[i]);
 
+    for(int i=0;i<numOfCans;i++){
+        if(strcmp(candidates[i]->fname,details[0])==0 && strcmp(candidates[i]->lname,details[1])==0)
+            found = 1;
+    }
+
+    if(found==0){
+        printf("The name you have entered does not exist in our candidates list!\n");
+        return;
+    }
+
+    employees[numOfDevs] = (Developer *) calloc(1, sizeof(Developer));
     int i;
 
-    for(i=0;i<numOfCans;i++){
-        if(strcmp(candidates[i]->fname,details[0])==0 && strcmp(candidates[i]->lname,details[1])==0){
-            printf("Candidate %s %s has been hired as an employee!\n",details[0],details[1]);
-            for(;i<numOfCans-1;i++){
-                candidates[i]=candidates[i+1];
+    for (i = 0; i < numOfCans; i++) {
+        if (strcmp(candidates[i]->fname, details[0]) == 0 && strcmp(candidates[i]->lname, details[1]) == 0) {
+            printf("Candidate %s %s has been hired as an employee!\n", details[0], details[1]);
+            strcpy(employees[numOfDevs]->fname, details[0]);
+            strcpy(employees[numOfDevs]->lname, details[1]);
+            for (; i < numOfCans - 1; i++) {
+                candidates[i] = candidates[i + 1];
             }
             numOfCans--;
             break;
@@ -306,5 +340,4 @@ void HireCandidate(Developer *candidates[],Developer *employees[]) {
     employees[numOfDevs]->r2 = NULL;
 
     numOfDevs++;
-
 }
